@@ -20,7 +20,7 @@ for i in range(2,NumberOfNodes+1):
     ChooseRandomFromThisArray.append(i)
 PrimaryPopulation = []
 for i in range(0, PrimaryPopulationNumber):
-    PrimaryPopulation.append([1])
+    PrimaryPopulation.append([])
     for j in range(1, NumberOfNodes):
         k = random.choice(ChooseRandomFromThisArray)
         PrimaryPopulation[i].append(k)
@@ -48,10 +48,16 @@ def Repeat(Path):
     return repeated
 def EvaluationAllThePath(Paths):
     values = []
-    for i in range(0, len(Paths)):
+    i=0
+    k2=len(Paths)
+    while i < k2:
         if len(Repeat(Paths[i])) > 0:
-            Paths.remove(Paths[i])
-        values.append({"person": i, "mark": EvaluationThePath(Paths[i])})
+            kk=Paths[i]
+            Paths.remove(kk)
+            k2 = k2 - 1
+        i = i + 1
+    for j in range(0, k2):
+        values.append({"person": j, "mark": EvaluationThePath(Paths[j])})
     values2 = sorted(values, key = lambda i: i['mark'], reverse=True)
     return values2
 ############### Evaluation Function ###############
@@ -59,14 +65,28 @@ def EvaluationAllThePath(Paths):
 def Mating(Mom, Dad):
     ml=[]
     for i in range(0, len(PrimaryPopulation)-1):
-        ml.append(i+2)
+        ml.append(i)
     k1 = random.choice(ml)
     ml.remove(k1)
     k2 = random.choice(ml)
     ml.clear()
     ml.append(k1)
     ml.append(k2)
-    return ml
+    p1=[]
+    p2=[]
+    for i in range(0, k1+1):
+        p1.append(Mom[i])
+        p2.append(Dad[i])
+    for i in range(k1+1, k2+1):
+        p1.append(Dad[i])
+        p2.append(Mom[i])
+    for i in range(k2+1, len(Mom)):
+        p1.append(Mom[i])
+        p2.append(Dad[i])
+    l=[]
+    l.append(p1)
+    l.append(p2)
+    return l
 ##################### Mating ######################
 ################ Choosing parents #################
 GenerationCounter = 1
@@ -95,10 +115,18 @@ while(GenerationCounter <= 1):
             draw = choice(values, 1, p = poss)
             ChoosingParents.append(draw[0])
             print(ChoosingParents)
-        for i in range(0,len(ChoosingParents)-1):
-            TwoChildren = Mating(ChoosingParents[i], ChoosingParents[i+1])
+        i=0
+        while i < len(ChoosingParents):
+
+            TwoChildren = Mating(PrimaryPopulation[ChoosingParents[i]['person']], PrimaryPopulation[ChoosingParents[i+1]['person']])
+            print(TwoChildren)
             Children.append(TwoChildren[0])
             Children.append(TwoChildren[1])
+            i=i+2
+        i=0
+        evalChildren = EvaluationAllThePath(Children)
+        print(Children)
+        print(evalChildren)
 #     else:
 #         sum=0
 # #         poss.clear()
