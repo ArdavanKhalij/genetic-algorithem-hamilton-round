@@ -46,25 +46,29 @@ def Repeat(Path):
             if Path[i] == Path[j] and Path[i] not in repeated:
                 repeated.append(Path[i])
     return repeated
-def EvaluationAllThePath(Paths):
-    values = []
+def DeleteRP(Paths):
     i=0
     k2=len(Paths)
     while i < k2:
         if len(Repeat(Paths[i])) > 0:
             kk=Paths[i]
             Paths.remove(kk)
-            k2 = k2 - 1
+            k2=k2-1
+            i=i-1
         i = i + 1
+    return Paths
+def EvaluationAllThePath(Paths):
+    values = []
+    i=0
+    k2=len(Paths)
     for j in range(0, k2):
-        values.append({"person": j, "mark": EvaluationThePath(Paths[j])})
-    values2 = sorted(values, key = lambda i: i['mark'], reverse=True)
-    return values2
+        values.append(EvaluationThePath(Paths[j]))
+    return values
 ############### Evaluation Function ###############
 ##################### Mating ######################
 def Mating(Mom, Dad):
     ml=[]
-    for i in range(0, len(PrimaryPopulation)-1):
+    for i in range(0, len(Mom)):
         ml.append(i)
     k1 = random.choice(ml)
     ml.remove(k1)
@@ -74,6 +78,10 @@ def Mating(Mom, Dad):
     ml.append(k2)
     p1=[]
     p2=[]
+    if k1>k2:
+        s=k2
+        k2=k1
+        k1=s
     for i in range(0, k1+1):
         p1.append(Mom[i])
         p2.append(Dad[i])
@@ -94,58 +102,95 @@ sum = 0.0
 ChoosingParents = []
 poss=[]
 Children = []
-while(GenerationCounter <= 1):
+NumberToDelete = 0
+while(GenerationCounter <= 100):
     if GenerationCounter == 1:
         sum=0
         poss.clear()
+        pp = []
+        PrimaryPopulation2 = DeleteRP(PrimaryPopulation)
+        for i in range(0, len(PrimaryPopulation2)):
+            pp.append(PrimaryPopulation2[i])
+        PrimaryPopulation.clear()
+        for i in range(0, len(pp)):
+            PrimaryPopulation.append(pp[i])
         print(PrimaryPopulation)
+        print(PrimaryPopulation2)
         values = EvaluationAllThePath(PrimaryPopulation)
-        print(values)
         for i in range(0, len(values)):
-            sum = sum + values[i]['mark']
+            sum = sum + values[i]
         for i in range(0, len(values)):
-            poss.append((values[i]['mark'])/sum)
+            poss.append((values[i])/sum)
         x1=0.0
         for i in range(0, len(poss)-1):
             x1 = x1 + poss[i]
         x2 = len(poss)
         LastOne = poss[x2-1]
         poss[x2-1] = 1-x1
+        q = []
+        for j in range(0, len(PrimaryPopulation)):
+            q.append(j)
         for i in range(0, len(poss)):
-            draw = choice(values, 1, p = poss)
-            ChoosingParents.append(draw[0])
-            print(ChoosingParents)
+            draw = choice(q, 1, p = poss)
+            ChoosingParents.append(PrimaryPopulation[draw[0]])
         i=0
         while i < len(ChoosingParents):
-
-            TwoChildren = Mating(PrimaryPopulation[ChoosingParents[i]['person']], PrimaryPopulation[ChoosingParents[i+1]['person']])
-            print(TwoChildren)
+            TwoChildren = Mating(ChoosingParents[i], ChoosingParents[i+1])
             Children.append(TwoChildren[0])
             Children.append(TwoChildren[1])
+            TwoChildren.clear()
             i=i+2
         i=0
-        evalChildren = EvaluationAllThePath(Children)
-        print(Children)
-        print(evalChildren)
-#     else:
-#         sum=0
-# #         poss.clear()
-#         values = EvaluationAllThePath(PrimaryPopulation)
-#         for i in range(0, len(values)):
-#             sum = sum + ChoosingParents[i]['mark']
-#         for i in range(0, len(values)):
-#             poss.append((ChoosingParents[i]['mark'])/sum)
-#         x1=0.0
-#         for i in range(0, len(poss)-1):
-#             x1 = x1 + poss[i]
-#         x2 = len(poss)
-#         LastOne = poss[x2-1]
-#         poss[x2-1] = 1-x1
-#         for i in range(0, len(poss)):
-#             draw = choice(values, 1, p = poss)
-#             print(draw)
-#             ChoosingParents.append(draw[0])
-
-################ Choosing parents #################
-
-    GenerationCounter = GenerationCounter +1
+        NumberToDelete = len(PrimaryPopulation)
+        for i in range(0, len(Children)):
+            PrimaryPopulation.append(Children[i])
+    else:
+        sum=0
+        poss.clear()
+        values.clear()
+        pp = []
+        PrimaryPopulation2 = DeleteRP(PrimaryPopulation)
+        for i in range(0, len(PrimaryPopulation2)):
+            pp.append(PrimaryPopulation2[i])
+        PrimaryPopulation.clear()
+        for i in range(0, len(pp)):
+            PrimaryPopulation.append(pp[i])
+        print(PrimaryPopulation)
+        print(PrimaryPopulation2)
+        values = EvaluationAllThePath(PrimaryPopulation)
+        for i in range(0, len(values)):
+            sum = sum + values[i]
+        for i in range(0, len(values)):
+            poss.append((values[i])/sum)
+        x1=0.0
+        for i in range(0, len(poss)-1):
+            x1 = x1 + poss[i]
+        x2 = len(poss)
+        LastOne = poss[x2-1]
+        poss[x2-1] = 1-x1
+        q = []
+        for j in range(0, len(PrimaryPopulation)):
+            q.append(j)
+        for i in range(0, len(poss)):
+            draw = choice(q, 1, p = poss)
+            ChoosingParents.append(PrimaryPopulation[draw[0]])
+        i=0
+        while i < len(ChoosingParents):
+            TwoChildren = Mating(ChoosingParents[i], ChoosingParents[i+1])
+            Children.append(TwoChildren[0])
+            Children.append(TwoChildren[1])
+            TwoChildren.clear()
+            i=i+2
+        i=0
+        NumberToDelete2 = len(PrimaryPopulation)
+        while i<NumberToDelete:
+            del PrimaryPopulation[0]
+            i=i+1
+        i=0
+        NumberToDelete = NumberToDelete2
+        for j in range(0, len(Children)):
+            PrimaryPopulation.append(Children[j])
+    print("________________________________")
+    print(len(PrimaryPopulation))
+    print("________________________________")
+    GenerationCounter = GenerationCounter + 1
